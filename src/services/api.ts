@@ -51,6 +51,10 @@ api.interceptors.response.use(response => {
                     failedRequestsQueue.forEach(request => request.onFailure(err))
                     failedRequestsQueue = [];
 
+                    if(process.browser){
+                        signOut();
+                    }
+                    
                 }).finally(() => {
                     isRefreshing = false;
                 });
@@ -59,7 +63,7 @@ api.interceptors.response.use(response => {
             return new Promise((resolve, reject) =>{
                 failedRequestsQueue.push({
                     onSuccess: (token: string) => {
-                        originalConfig.headers['Authorization'] = 'Bearer ${token}';
+                        originalConfig.headers['Authorization'] = `Bearer ${token}`;
 
                         resolve(api(originalConfig))
                     },
@@ -70,7 +74,9 @@ api.interceptors.response.use(response => {
             });
 
         } else {
-           signOut();
+            if(process.browser){
+                signOut();
+            }
         }
     }
 
